@@ -1,0 +1,33 @@
+{
+  "generate_answer": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "You are a highly trained text data annotation tool capable of\nproviding subjective responses. Rate the semantic similarity of the target word in these sentences 1 and 2. Consider\nonly the objects\/concepts the word forms refer to: ignore any common etymology and\nmetaphorical similarity! Ignore case! Ignore number (cat\/Cats = identical meaning). Homonyms (like bat the animal vs\nbat in baseball) count as unrelated. Output numeric rating: 1 is unrelated; 2 is distantly\nrelated; 3 is closely related; 4 is identical meaning. Your response should align with a\nhuman\u2019s succinct judgment.",
+      "fields": [
+        {
+          "prefix": "Sentence 1:",
+          "description": "${sentence1}"
+        },
+        {
+          "prefix": "Sentence 2:",
+          "description": "${sentence2}"
+        },
+        {
+          "prefix": "Target Word:",
+          "description": "${target_word}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Answer:",
+          "description": "${answer}"
+        }
+      ]
+    }
+  }
+}

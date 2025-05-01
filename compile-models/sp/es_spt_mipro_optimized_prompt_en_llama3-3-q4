@@ -1,0 +1,64 @@
+{
+  "generate_answer": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "sentence1": "A excepci\u00f3n de Ocean\u00eda, cuya tasa de respuesta es baja, la mayor\u00eda de las subregiones afirmaron que dispon\u00edan de leyes relativas a la fiscalizaci\u00f3n de precursores. La subregi\u00f3n con la mayor proporci\u00f3n de leyes de fiscalizaci\u00f3n de precursores fue Am\u00e9rica del Norte, seguida de Europa occidental y central y de Asia oriental y sudoriental. En la subregi\u00f3n de Europa sudoriental se observ\u00f3 a lo largo de los cuatro ciclos un aumento constante del n\u00famero de Estados que afirmaron disponer de leyes de fiscalizaci\u00f3n de precursores.",
+        "sentence2": "Mi enfermedad hab\u00eda empezado en Noviembre, cuando los alcarre\u00f1os vestidos de pa\u00f1o pardo pregonaban por Madrid buena casta\u00f1a, buena nuez. No estuve en situaci\u00f3n de salir de casa hasta los d\u00edas precursores de la Pascua, cuando el mazap\u00e1n atarugaba las tiendas y andaban ya los ni\u00f1os tocando tambores por las calles. Navidad, la familiar, alegre y cristiana fiesta se acercaba.",
+        "target_word": "precursor",
+        "reasoning": "The word \"precursor\" in sentence1 refers to a substance or chemical that is used to produce something else, whereas in sentence2 it refers to something that comes before or announces something else, in this case, the Pascua (Easter). Although they share a similar meaning of being prior to something, the context and usage are different.",
+        "answer": 1
+      },
+      {
+        "augmented": true,
+        "sentence1": "La posici\u00f3n de las empresas ferroviarias en la autoridad administrativa se ha visto reforzada en comparaci\u00f3n con la propuesta inicial de la Comisi\u00f3n. Se ha reforzado el papel las organizaciones involucradas en la creaci\u00f3n administraci\u00f3n de los corredores ferroviarios europeos. Se han aceptado los comentarios relacionados con la cooperaci\u00f3n con terceros pa\u00edses afectados por los corredores.",
+        "sentence2": "Ocult\u00e9monos en la sombra del cipr\u00e9s y hablemos en voz muy baja. La escalera de piedra conduc\u00eda a una especie de corredor o balc\u00f3n con antepecho de madera. En el extremo de este corredor un cipr\u00e9s corpulento, plantado en la huerta, proyectaba gran masa de sombra, formando all\u00ed una especie de refugio contra la claridadde la luna.",
+        "target_word": "corredor",
+        "reasoning": "The word \"corredor\" has different meanings in the two sentences. In sentence1, it refers to a railway corridor, while in sentence2, it refers to a passageway or balcony. Although they share a common translation, their contexts and meanings are distinct.",
+        "answer": 2
+      },
+      {
+        "augmented": true,
+        "sentence1": "Se\u00f1or Presidente, se\u00f1oras y caballeros, lo lamento pero no puedo apoyar el grupo de las cuatro enmiendas transaccionales, ya que se ha excluido a Estonia y al Letonia del corredor ferroviario descrito en el anexo I, punto 8. Teniendo en cuenta el futuro del sistema ferroviario en general, as\u00ed como el proyecto Rail Baltica, era de esperar que este corredor tambi\u00e9n incluyera Tallin y Riga. Por desgracia, las enmiendas adoptadas han restringido nuestras opciones -las de Estonia y Letonia- y, en consecuencia, no hemos avanzado nada en el enlace de todos los Estados miembros de la Uni\u00f3n Europea en un sistema ferroviario uniforme.",
+        "sentence2": "Observ\u00f3 Maxi en los d\u00edas sucesivos que cada hilada de ladrillos iba tapando discretamente aquella interesante parte de la interioridad monjil, como la ropa que se extiende para velar las carnes descubiertas. Lleg\u00f3 un d\u00eda en que s\u00f3lo se alcanzaban a ver las zapatas de los maderos que sosten\u00edan el techo del corredor, y al fin la masa constructiva lo tap\u00f3 todo, no quedando fuera m\u00e1s que las chimeneas, y aun para columbrar estas era preciso tomar la visual desde muy lejos. Al Norte hab\u00eda un terreno mal sembrado de cebada.",
+        "target_word": "corredor",
+        "reasoning": "The word \"corredor\" has different meanings in the two sentences. In sentence1, it refers to a railway corridor, while in sentence2, it refers to a passageway or hallway. Although they share a common translation, their contexts and meanings are distinct.",
+        "answer": 2
+      },
+      {
+        "sentence1": "Yo s\u00f3lo estrech\u00e9 la mano de Clinton una vez, temprano en una ma\u00f1ana de domingo en una sinagoga de la ciudad de Nueva York, hace varios a\u00f1os. Verdaderamente me impresion\u00f3 que esta peque\u00f1a sinagoga pudiera albergar la presencia de dos senadores de Nueva York, Clinton y Charles Schumer, y otros varios congresistas para un desayuno temprano. Pude ver a primera mano que Clinton gozaba de la confianza de la comunidad jud\u00eda -un requisito importante para cualquier mediador en Oriente Medio.",
+        "sentence2": "Se ven como si se estuvieran congeladas en un abrazo. Y cada una probablemente alberga un agujero negro s\u00faper masivo en su centro. Pero no est\u00e1n congelados, se est\u00e1n fusionando.",
+        "target_word": "albergar",
+        "answer": 1
+      }
+    ],
+    "signature": {
+      "instructions": "To determine the semantic similarity of the target word in sentences 1 and 2, we need to analyze the context and meaning of the word in each sentence. The target word is \"corredor\". In sentence 1, \"a un perro que ladra mucho, pero que se sabe no ha de morder. A mitad de la escalera se volvi\u00f3 la harp\u00eda, y mirando con inflamados ojos a las monjas que en el corredor quedaban, les dec\u00eda en un grito estridente: \u00ab\u00a1Ladronas, m\u00e1s que ladronas!... \u00a1Grand\u00edsimas p\u00faas!...\u00bb. Dicho esto, la coja le pon\u00eda suavemente la mano en la espalda, empuj\u00e1ndola hacia adelante.\", the word \"corredor\" refers to a passageway or hallway in a building. In sentence 2, no sentence is provided for comparison.\n\nGiven that only one sentence is available for analysis, we will consider a general understanding of the word \"corredor\" and its possible meanings. The word can refer to a corridor or passageway, as seen in the provided sentence, or it can have other meanings depending on the context, such as a runner or a broker in different scenarios.\n\nHowever, without a second sentence for direct comparison, we must rely on the understanding that if \"corredor\" is used in another sentence with the same meaning (e.g., referring to a passageway), it would be considered identical in meaning. If it's used with a different meaning (e.g., referring to a person who runs or a stockbroker), it would be less related.\n\nSince we cannot compare two sentences directly as requested, I'll provide a general guideline on how the comparison should be made:\n- If both sentences use \"corredor\" to refer to a passageway or hallway, the rating should be 4 (identical meaning).\n- If one sentence uses \"corredor\" to refer to a passageway and the other to a different concept (like a runner or broker), the rating should reflect their semantic similarity based on the context provided.\n\nGiven the information and the request for a numeric rating, and considering that only one sentence is provided which refers to a \"corredor\" as a passageway, without a direct comparison, the most accurate approach would be to consider how the word might relate to its potential uses. Since we're missing a second sentence for a direct comparison, I will proceed based on the assumption that if another sentence also referred to a passageway, they would have an identical meaning.",
+      "fields": [
+        {
+          "prefix": "Sentence 1:",
+          "description": "${sentence1}"
+        },
+        {
+          "prefix": "Sentence 2:",
+          "description": "${sentence2}"
+        },
+        {
+          "prefix": "Target Word:",
+          "description": "${target_word}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Answer:",
+          "description": "${answer}"
+        }
+      ]
+    }
+  }
+}

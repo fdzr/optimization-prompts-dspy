@@ -1,0 +1,64 @@
+{
+  "generate_answer": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "sentence1": "By virtue of learning, he assured all, these young people would make a better stab at things than people before had.",
+        "sentence2": "Two crimes supervised by Cesare that his ethically numb father could not forgive were the murder (by stabbing and drowning) of his brother, Alexander's eldest son, the Duke of Gandia, and the stabbing of Perotto, the pope's personal minion.",
+        "target_word": "stab_nn",
+        "reasoning": "The word \"stab\" in sentence1 is used idiomatically to mean \"attempt\", whereas in sentence2 it refers to a physical act of violence with a sharp object. These two uses are distinct and unrelated, indicating that the word \"stab\" has different meanings in each context.",
+        "answer": 1
+      },
+      {
+        "augmented": true,
+        "sentence1": "The raw areas were ready to receive skin grafts.",
+        "sentence2": "WIN Howard did not take graft because he was gullible.",
+        "target_word": "graft_nn",
+        "reasoning": "The word \"graft\" in sentence1 refers to a surgical procedure where skin is transplanted, whereas in sentence2 it refers to bribes or corrupt payments. These two meanings are unrelated, indicating that the word \"graft\" is being used as a homonym.",
+        "answer": 1
+      },
+      {
+        "augmented": true,
+        "sentence1": "In long ranks, like grass in the mower's swathes, the rebel warriors lay, with their grim faces, and glazed eyes, set in that terrible expression of ferocity which is always observed on the lineaments of those who have died from wounds inflicted by a stabbing weapon; and under them, or near them, in ghastly piles were heaped, scarce less in number, the corpses of their slaughtered conquerors.",
+        "sentence2": "I admit it was roundabout, especially in view of the fact that time was short, but it was a better stab at getting results than persuading her to go to the Flamingo for an evening of dancing.",
+        "target_word": "stab_nn",
+        "reasoning": "The word \"stab\" in sentence1 refers to a physical act of stabbing with a weapon, whereas in sentence2, it is used idiomatically as \"a stab at\" meaning an attempt or try. These two uses of the word have different meanings and connotations.",
+        "answer": 1
+      },
+      {
+        "sentence1": "Has \" No Knowledge \" said in the first place t h e officer referred to was not a squadron commander and that, according to's recollection, the prisoner had said he had \" no knowledge \" of the Aug. 4 attack.",
+        "sentence2": "my idea of the fault of the system which sometimes leaves an opening for the attacks of",
+        "target_word": "attack_nn",
+        "answer": 3
+      }
+    ],
+    "signature": {
+      "instructions": "Eres un experto en ling\u00fc\u00edstica y an\u00e1lisis sem\u00e1ntico, capaz de evaluar la similitud entre conceptos y objetos en diferentes contextos. Eval\u00faa la similitud sem\u00e1ntica de la palabra objetivo en estas oraciones 1 y 2. Considera solo los objetos\/conceptos a los que se refieren las palabras: \u00a1Ignora cualquier etimolog\u00eda com\u00fan y similitud metaf\u00f3rica! \u00a1Ignora may\u00fasculas! \u00a1Ignora n\u00famero (gato\/Gatos = significado id\u00e9ntico)! Los hom\u00f3nimos (como murci\u00e9lago el animal vs murci\u00e9lago en b\u00e9isbol) se consideran no relacionados. De como salida una calificaci\u00f3n num\u00e9rica: 1 es no relacionado; 2 es lejanamente relacionado; 3 es estrechamente relacionado; 4 es significado id\u00e9ntico. Tu respuesta debe alinearse con el juicio sucinto de un humano.",
+      "fields": [
+        {
+          "prefix": "Sentence 1:",
+          "description": "${sentence1}"
+        },
+        {
+          "prefix": "Sentence 2:",
+          "description": "${sentence2}"
+        },
+        {
+          "prefix": "Target Word:",
+          "description": "${target_word}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Answer:",
+          "description": "${answer}"
+        }
+      ]
+    }
+  }
+}
