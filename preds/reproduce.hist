@@ -1,0 +1,7 @@
+for x in test_dwug_es_a?; do sbatch -p a100 -A nn9851k --ntasks=1 -G 1 --mem-per-cpu=32G --time=30:00:00 --gres=localscratch:100G run_annotation_saga_a100.sh deepseek-r1:14b compile-models/sp/es_spt_mipro_optimized_prompt_en_deepseek-q4 $x; sleep 30;  done
+
+for x in test_dwug_en_a?; do sbatch -p a100 -A nn9851k --ntasks=1 -G 1 --mem-per-cpu=32G --time=30:00:00 --gres=localscratch:100G run_annotation_saga_a100.sh deepseek-r1:14b compile-models/sp/en_spt_mipro_optimized_prompt_en_deepseek-q4 $x; sleep 30;  done
+
+for x in test_dwug_es_a?; do sbatch -p a100 -A nn9851k --ntasks=1 -G 1 --mem-per-cpu=32G --time=30:00:00 --gres=localscratch:100G run_annotation_saga_a100.sh llama3.3:70b compile-models/sp/es_spt_mipro_optimized_prompt_en_llama3-3-q4 $x; sleep 30;  done
+
+for x in test_dwug_en_a?; do sbatch -p a100 -A nn9851k --ntasks=1 -G 1 --mem-per-cpu=32G --time=30:00:00 --gres=localscratch:100G run_annotation_saga_a100.sh llama3.3:70b compile-models/sp/en_spt_mipro_optimized_prompt_es_llama3-3-q4 $x; sleep 30;  done
