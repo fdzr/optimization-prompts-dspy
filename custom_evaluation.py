@@ -1,11 +1,19 @@
 from datetime import datetime
-from typing import List
+from typing import List, Any
 
 import dspy
 from scipy.stats import spearmanr
 
 
-def custom_evaluate(dataset, metric, model, report_result=False, debug=False):
+def custom_evaluate(
+    dataset: List[dspy.Example],
+    model: Any,
+    mode_prompt: str,
+    name_file: str,
+    k: int,
+    report_result: bool = False,
+    debug: bool = False,
+):
     acc = 0
     cont = 1
     bad_format = 0
@@ -54,6 +62,12 @@ def custom_evaluate(dataset, metric, model, report_result=False, debug=False):
     print(f"Bad-formatted examples: {bad_format}")
 
     print(f"Accuracy: {acc * 100 / (len(dataset) - bad_format)}")
+
+    with open(name_file, "a") as f_out:
+        f_out.write(f"Stats for {k} items - {mode_prompt} \n")
+        f_out.write(f"  Accuracy: {acc * 100 / (len(dataset) - bad_format)}\n")
+        f_out.write(f"  Bad-formatted examples: {bad_format}")
+        f_out.write("\n\n")
 
     if report_result is True:
         return result
