@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from datetime import datetime
 import random
 
@@ -7,12 +8,38 @@ from dspy.evaluate import Evaluate
 from dspy.teleprompt import MIPROv2
 from sklearn.model_selection import train_test_split
 
-from programs import WrapperEnglishSPT, evaluate_answer
+from programs import WrapperEnglishSPT, WrapperSpanishSPT, evaluate_answer
 from custom_evaluation import custom_evaluate
 
 random.seed(1334)
 
 start_time = datetime.now()
+
+parser = ArgumentParser(description="script to optimize prompts")
+parser.add_argument(
+    "--dataset",
+    help="name of the dataset [dev_dwug_en_resampled.csv or dev_dwug_es.csv]",
+)
+parser.add_argument(
+    "--number-items",
+    nargs="+",
+    help="number of items per class",
+)
+parser.add_argument(
+    "--language-dataset",
+    help="en or es",
+)
+parser.add_argument(
+    "--prompt-idiom",
+    help="values=[en or es]",
+)
+
+args = parser.parse_args()
+
+dataset = args.dataset
+language_dataset = args.language_dataset
+prompt_idiom = args.prompt_idiom
+number_items = list(map(int, args.number_items))
 
 
 lm = dspy.LM(
@@ -21,10 +48,22 @@ lm = dspy.LM(
 )
 dspy.settings.configure(lm=lm)
 
-program_spt_prompt_with_assertions = WrapperEnglishSPT().activate_assertions()
+program_spt_prompt_with_assertions = None
+
+if prompt_idiom == "en":
+    program_spt_prompt_with_assertions = WrapperEnglishSPT().activate_assertions()
+else:
+    program_spt_prompt_with_assertions = WrapperSpanishSPT().activate_assertions()
+
+name_of_dataset = None
+
+if language_dataset == "en":
+    name_of_dataset = "dwug_en"
+else:
+    name_of_dataset = "dwug_es"
 
 
-data = pd.read_csv("dev_dwug_en_resampled.csv")
+data = pd.read_csv(dataset)
 print(data.shape)
 
 training_set = []
@@ -96,9 +135,6 @@ print(len(classes_2_train), len(classes_2_dev), len(classes_2_test))
 print(len(classes_3_train), len(classes_3_dev), len(classes_3_test))
 print(len(classes_4_train), len(classes_4_dev), len(classes_4_test))
 
-
-number_items = [5, 10, 15, 20, 50, 100]
-
 for quantity in number_items:
 
     random.shuffle(classes_1_train)
@@ -112,7 +148,7 @@ for quantity in number_items:
         + random.choices(classes_3_train, k=quantity)
         + random.choices(classes_4_train, k=quantity),
         program_spt_prompt_with_assertions,
-        "non-optimized - dwug-en - prompt-en",
+        f"non-optimized - {name_of_dataset} - prompt-{prompt_idiom}",
         "accuracy-report.txt",
         quantity,
         debug=False,
@@ -147,11 +183,11 @@ for quantity in number_items:
     )
 
     optimized_program.save(
-        f"compile-models/sp/en_spt_mipro_optimized_prompt_en_deepseek-70b-q4-{quantity}-items-per-class"
+        f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{quantity}-items-per-class"
     )
 
     program_spt_prompt_with_assertions.load(
-        f"compile-models/sp/en_spt_mipro_optimized_prompt_en_deepseek-70b-q4-{quantity}-items-per-class"
+        f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{quantity}-items-per-class"
     )
 
     custom_evaluate(
@@ -160,7 +196,7 @@ for quantity in number_items:
         + random.choices(classes_3_train, k=quantity)
         + random.choices(classes_4_train, k=quantity),
         program_spt_prompt_with_assertions,
-        "optimized - dwug-en - prompt-en",
+        f"optimized - {name_of_dataset} - prompt-{prompt_idiom}",
         "accuracy-report.txt",
         quantity,
         debug=False,
