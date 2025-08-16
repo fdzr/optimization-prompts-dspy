@@ -62,14 +62,16 @@ def custom_evaluate(
 
     print(f"Bad-formatted examples: {bad_format}")
 
+    acc_reported = None
     try:
-        print(f"Accuracy: {acc * 100 / (len(dataset) - bad_format)}")
+        acc_reported = acc * 100 / (len(dataset) - bad_format)
     except Exception as e:
-        print("Accurary: 0, all the answers re bad formatted")
+        print("Accurary: 0, all the answers are bad formatted")
+        acc_reported = 0
 
     with open(name_file, "a") as f_out:
         f_out.write(f"Stats for {k} items - {mode_prompt} \n")
-        f_out.write(f"  Accuracy: {acc * 100 / (len(dataset) - bad_format)}\n")
+        f_out.write(f"  Accuracy: {acc_reported}\n")
         f_out.write(f"  Bad-formatted examples: {bad_format}")
         f_out.write("\n\n")
 
