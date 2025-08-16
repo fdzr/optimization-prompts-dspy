@@ -17,9 +17,14 @@ start_time = datetime.now()
 
 parser = ArgumentParser(description="script to optimize prompts")
 parser.add_argument(
+    "--port",
+    help="ollama port",
+)
+parser.add_argument(
     "--dataset",
     help="name of the dataset [dev_dwug_en_resampled.csv or dev_dwug_es.csv]",
 )
+
 parser.add_argument(
     "--number-items",
     nargs="+",
@@ -44,7 +49,7 @@ number_items = list(map(int, args.number_items))
 
 lm = dspy.LM(
     "ollama_chat/deepseek-r1:70b",
-    api_base="http://localhost:11434",
+    api_base=f"http://localhost:{int(args.port)}",
 )
 dspy.settings.configure(lm=lm)
 

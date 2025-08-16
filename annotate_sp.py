@@ -57,7 +57,7 @@ def annotate(port, lm_name, fprompt, ftest, shuffle=False):
         report_result=True,
         debug=False,
     )
-    
+#    print(dspy.inspect_history(10)) 
     print(f"Elapsed time: {datetime.now() - start_time}")
     
     reasoning = [item.reasoning if item else None for item in result]
