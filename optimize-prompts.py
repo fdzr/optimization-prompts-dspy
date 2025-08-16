@@ -21,10 +21,17 @@ parser.add_argument(
     help="ollama port",
 )
 parser.add_argument(
-    "--dataset",
-    help="name of the dataset [dev_dwug_en_resampled.csv or dev_dwug_es.csv]",
+    "--train-data",
+    help="name of the train dataset [train_en.csv or train_es.csv]",
 )
-
+parser.add_argument(
+    "--dev-data",
+    help="name of the dev dataset [dev_en.csv or dev_es.csv]",
+)
+parser.add_argument(
+    "--number-items-dev-set",
+    help="number of items in the dev set",
+)
 parser.add_argument(
     "--number-items",
     nargs="+",
@@ -41,11 +48,12 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-dataset = args.dataset
+name_train_dataset = args.train_data
+name_dev_dataset = args.dev_data
+number_items_dev_set = int(args.number_items_dev_set)
 language_dataset = args.language_dataset
 prompt_idiom = args.prompt_idiom
 number_items = list(map(int, args.number_items))
-
 
 lm = dspy.LM(
     "ollama_chat/deepseek-r1:70b",
@@ -68,90 +76,66 @@ else:
     name_of_dataset = "dwug_es"
 
 
-data = pd.read_csv(dataset)
-print(data.shape)
-
-training_set = []
-
-for _, row in data.iterrows():
-    training_set.append(
+def make_examples(df: pd.DataFrame):
+    return [
         dspy.Example(
             sentence1=row["context_x"],
             sentence2=row["context_y"],
             target_word=row["lemma"],
             answer=int(row["judgment"]),
         ).with_inputs("sentence1", "sentence2", "target_word")
-    )
+        for _, row in df.iterrows()
+    ]
 
-classes_1 = [item for item in training_set if item.answer == 1]
-classes_2 = [item for item in training_set if item.answer == 2]
-classes_3 = [item for item in training_set if item.answer == 3]
-classes_4 = [item for item in training_set if item.answer == 4]
 
-classes_1_train, classes_1_test = train_test_split(
-    classes_1,
-    test_size=0.2,
-    random_state=42,
+def sample_class_balanced(examples, k):
+    if k <= len(examples):
+        return random.sample(examples, k)
+    else:
+        return random.choices(examples, k=k)
+
+
+def dev_class_balanced(examples, k):
+    if len(examples) >= k:
+        return examples[:k]
+    else:
+        return examples + random.choices(examples, k=k - len(examples))
+
+
+train_data = pd.read_csv(name_train_dataset)
+dev_data = pd.read_csv(name_dev_dataset)
+
+print(train_data.shape)
+print(dev_data.shape)
+
+training_set = make_examples(train_data)
+dev_set = make_examples(dev_data)
+
+
+classes_train = {i: [ex for ex in training_set if ex.answer == i] for i in [1, 2, 3, 4]}
+classes_dev = {i: [ex for ex in dev_set if ex.answer == i] for i in [1, 2, 3, 4]}
+
+print("Train sizes: ", {k: len(v) for k, v in classes_train.items()})
+print("Dev sizes: ", {k: len(v) for k, v in classes_dev.items()})
+
+dev_subset = (
+    dev_class_balanced(classes_dev[1], number_items_dev_set)
+    + dev_class_balanced(classes_dev[2], number_items_dev_set)
+    + dev_class_balanced(classes_dev[3], number_items_dev_set)
+    + dev_class_balanced(classes_dev[4], number_items_dev_set)
 )
-classes_1_train, classes_1_dev = train_test_split(
-    classes_1_train,
-    test_size=0.25,
-    random_state=42,
-)
-
-
-classes_2_train, classes_2_test = train_test_split(
-    classes_2,
-    test_size=0.2,
-    random_state=42,
-)
-classes_2_train, classes_2_dev = train_test_split(
-    classes_2_train,
-    test_size=0.25,
-    random_state=42,
-)
-
-
-classes_3_train, classes_3_test = train_test_split(
-    classes_3,
-    test_size=0.2,
-    random_state=42,
-)
-classes_3_train, classes_3_dev = train_test_split(
-    classes_3_train,
-    test_size=0.25,
-    random_state=42,
-)
-
-
-classes_4_train, classes_4_test = train_test_split(
-    classes_4,
-    test_size=0.2,
-    random_state=42,
-)
-classes_4_train, classes_4_dev = train_test_split(
-    classes_4_train,
-    test_size=0.25,
-    random_state=42,
-)
-
-print(len(classes_1_train), len(classes_1_dev), len(classes_1_test))
-print(len(classes_2_train), len(classes_2_dev), len(classes_2_test))
-print(len(classes_3_train), len(classes_3_dev), len(classes_3_test))
-print(len(classes_4_train), len(classes_4_dev), len(classes_4_test))
 
 for quantity in number_items:
 
-    random.shuffle(classes_1_train)
-    random.shuffle(classes_2_train)
-    random.shuffle(classes_3_train)
-    random.shuffle(classes_4_train)
+    train_subset = (
+        sample_class_balanced(classes_train[1], quantity)
+        + sample_class_balanced(classes_train[2], quantity)
+        + sample_class_balanced(classes_train[3], quantity)
+        + sample_class_balanced(classes_train[4], quantity)
+    )
 
     custom_evaluate(
-        random.choices(classes_1_train, k=quantity)
-        + random.choices(classes_2_train, k=quantity)
-        + random.choices(classes_3_train, k=quantity)
-        + random.choices(classes_4_train, k=quantity),
+        train_subset,
         program_spt_prompt_with_assertions,
         f"non-optimized - {name_of_dataset} - prompt-{prompt_idiom}",
         "accuracy-report.txt",
@@ -172,14 +156,8 @@ for quantity in number_items:
     print("Optimizing program with MIPRO...")
     optimized_program = teleprompter.compile(
         program_spt_prompt_with_assertions.deepcopy(),
-        trainset=random.choices(classes_1_train, k=quantity)
-        + random.choices(classes_2_train, k=quantity)
-        + random.choices(classes_3_train, k=quantity)
-        + random.choices(classes_4_train, k=quantity),
-        valset=random.choices(classes_1_dev, k=quantity)
-        + random.choices(classes_2_dev, k=quantity)
-        + random.choices(classes_3_dev, k=quantity)
-        + random.choices(classes_4_dev, k=quantity),
+        trainset=train_subset,
+        valset=dev_subset,
         num_trials=15,
         minibatch_size=25,
         minibatch_full_eval_steps=10,
@@ -196,10 +174,7 @@ for quantity in number_items:
     )
 
     custom_evaluate(
-        random.choices(classes_1_train, k=quantity)
-        + random.choices(classes_2_train, k=quantity)
-        + random.choices(classes_3_train, k=quantity)
-        + random.choices(classes_4_train, k=quantity),
+        train_subset,
         program_spt_prompt_with_assertions,
         f"optimized - {name_of_dataset} - prompt-{prompt_idiom}",
         "accuracy-report.txt",
