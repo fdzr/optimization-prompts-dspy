@@ -59,9 +59,13 @@ def custom_evaluate(
             print("Prediction: ", pred.answer)
 
     print(f"Accurate examples: {acc}")
+
     print(f"Bad-formatted examples: {bad_format}")
 
-    print(f"Accuracy: {acc * 100 / (len(dataset) - bad_format)}")
+    try:
+        print(f"Accuracy: {acc * 100 / (len(dataset) - bad_format)}")
+    except Exception as e:
+        print("Accurary: 0, all the answers re bad formatted")
 
     with open(name_file, "a") as f_out:
         f_out.write(f"Stats for {k} items - {mode_prompt} \n")
