@@ -69,11 +69,18 @@ def custom_evaluate(
         print("Accurary: 0, all the answers are bad formatted")
         acc_reported = 0
 
-    with open(name_file, "a") as f_out:
+    with open(name_file, "w") as f_out:
         f_out.write(f"Stats for {k} items - {mode_prompt} \n")
         f_out.write(f"  Accuracy: {acc_reported}\n")
         f_out.write(f"  Bad-formatted examples: {bad_format}")
         f_out.write("\n\n")
+
+        f_out.write("=== Inspection History (last 10) ===\n")
+        try:
+            history_str = str(dspy.inspect_history(10))
+            f_out.write(history_str + "\n\n")
+        except Exception as e:
+            f_out.write(f"Failed to save inspection history: {e}\n\n")
 
     if report_result is True:
         return result

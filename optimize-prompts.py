@@ -53,7 +53,7 @@ name_dev_dataset = args.dev_data
 number_items_dev_set = int(args.number_items_dev_set)
 language_dataset = args.language_dataset
 prompt_idiom = args.prompt_idiom
-number_items = list(map(int, args.number_items))
+number_items_per_class = int(args.number_items)
 
 lm = dspy.LM(
     "ollama_chat/deepseek-r1:70b",
@@ -125,61 +125,79 @@ dev_subset = (
     + dev_class_balanced(classes_dev[4], number_items_dev_set)
 )
 
-for quantity in number_items:
 
-    train_subset = (
-        sample_class_balanced(classes_train[1], quantity)
-        + sample_class_balanced(classes_train[2], quantity)
-        + sample_class_balanced(classes_train[3], quantity)
-        + sample_class_balanced(classes_train[4], quantity)
-    )
+train_subset = (
+    sample_class_balanced(classes_train[1], number_items_per_class)
+    + sample_class_balanced(classes_train[2], number_items_per_class)
+    + sample_class_balanced(classes_train[3], number_items_per_class)
+    + sample_class_balanced(classes_train[4], number_items_per_class)
+)
 
-    custom_evaluate(
-        train_subset,
-        program_spt_prompt_with_assertions,
-        f"non-optimized - {name_of_dataset} - prompt-{prompt_idiom}",
-        "accuracy-report.txt",
-        quantity,
-        debug=False,
-    )
+custom_evaluate(
+    train_subset,
+    program_spt_prompt_with_assertions,
+    f"non-optimized (train) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_per_class}",
+    f"accuracy-report-train-nonopt-items-{number_items_per_class}.txt",
+    number_items_per_class,
+    debug=False,
+)
 
-    teleprompter = MIPROv2(
-        metric=evaluate_answer,
-        task_model=lm,
-        num_candidates=10,
-        init_temperature=0.7,
-        max_bootstrapped_demos=3,
-        max_labeled_demos=4,
-        verbose=False,
-    )
 
-    print("Optimizing program with MIPRO...")
-    optimized_program = teleprompter.compile(
-        program_spt_prompt_with_assertions.deepcopy(),
-        trainset=train_subset,
-        valset=dev_subset,
-        num_trials=15,
-        minibatch_size=25,
-        minibatch_full_eval_steps=10,
-        minibatch=True,
-        requires_permission_to_run=False,
-    )
+custom_evaluate(
+    dev_subset,
+    program_spt_prompt_with_assertions,
+    f"non-optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_dev_set}",
+    f"accuracy-report-dev-nonopt-items-{number_items_dev_set}.txt",
+    number_items_dev_set,
+    debug=False,
+)
 
-    optimized_program.save(
-        f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{quantity}-items-per-class"
-    )
+teleprompter = MIPROv2(
+    metric=evaluate_answer,
+    task_model=lm,
+    num_candidates=10,
+    init_temperature=0.7,
+    max_bootstrapped_demos=3,
+    max_labeled_demos=4,
+    verbose=False,
+)
 
-    program_spt_prompt_with_assertions.load(
-        f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{quantity}-items-per-class"
-    )
+print("Optimizing program with MIPRO...")
+optimized_program = teleprompter.compile(
+    program_spt_prompt_with_assertions.deepcopy(),
+    trainset=train_subset,
+    valset=dev_subset,
+    num_trials=15,
+    minibatch_size=25,
+    minibatch_full_eval_steps=10,
+    minibatch=True,
+    requires_permission_to_run=False,
+)
 
-    custom_evaluate(
-        train_subset,
-        program_spt_prompt_with_assertions,
-        f"optimized - {name_of_dataset} - prompt-{prompt_idiom}",
-        "accuracy-report.txt",
-        quantity,
-        debug=False,
-    )
+optimized_program.save(
+    f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{number_items_per_class}-items-per-class"
+)
+
+program_spt_prompt_with_assertions.load(
+    f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{number_items_per_class}-items-per-class"
+)
+
+custom_evaluate(
+    train_subset,
+    program_spt_prompt_with_assertions,
+    f"optimized (train) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_per_class}",
+    f"accuracy-report-train-opt-items-{number_items_per_class}.txt",
+    number_items_per_class,
+    debug=False,
+)
+
+custom_evaluate(
+    dev_subset,
+    program_spt_prompt_with_assertions,
+    f"optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_dev_set}",
+    f"accuracy-report-dev-opt-items-{number_items_dev_set}.txt",
+    number_items_dev_set,
+    debug=False,
+)
 
 print(f"ELAPSED TIME: {datetime.now() - start_time}")
