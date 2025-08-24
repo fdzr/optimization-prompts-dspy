@@ -1,0 +1,7 @@
+Stats for 5 items - non-optimized (train) - dwug_es - prompt-es - items-5 
+  Accuracy: 45.0
+  Bad-formatted examples: 0
+
+=== Inspection History (last 10) ===
+None
+
