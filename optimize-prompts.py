@@ -118,12 +118,7 @@ classes_dev = {i: [ex for ex in dev_set if ex.answer == i] for i in [1, 2, 3, 4]
 print("Train sizes: ", {k: len(v) for k, v in classes_train.items()})
 print("Dev sizes: ", {k: len(v) for k, v in classes_dev.items()})
 
-dev_subset = (
-    dev_class_balanced(classes_dev[1], number_items_dev_set)
-    + dev_class_balanced(classes_dev[2], number_items_dev_set)
-    + dev_class_balanced(classes_dev[3], number_items_dev_set)
-    + dev_class_balanced(classes_dev[4], number_items_dev_set)
-)
+dev_subset = classes_dev[1] + classes_dev[2] + classes_dev[3] + classes_dev[4]
 
 
 train_subset = (
