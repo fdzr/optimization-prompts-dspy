@@ -26,7 +26,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--dev-data",
-    help="name of the dev dataset [dev_en.csv or dev_es.csv]",
+    help="name of the dev dataset [dev_en_subset.csv or dev_es_subset.csv]",
 )
 parser.add_argument(
     "--number-items-dev-set",
@@ -34,7 +34,6 @@ parser.add_argument(
 )
 parser.add_argument(
     "--number-items",
-    nargs="+",
     help="number of items per class",
 )
 parser.add_argument(
