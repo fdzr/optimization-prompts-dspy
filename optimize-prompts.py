@@ -9,7 +9,7 @@ from dspy.teleprompt import MIPROv2
 from sklearn.model_selection import train_test_split
 
 from programs import WrapperEnglishSPT, WrapperSpanishSPT, evaluate_answer
-from custom_evaluation import custom_evaluate
+from custom_evaluation import custom_evaluate, save_results
 
 random.seed(1334)
 
@@ -67,23 +67,21 @@ if prompt_idiom == "en":
 else:
     program_spt_prompt_with_assertions = WrapperSpanishSPT().activate_assertions()
 
-name_of_dataset = None
-
-if language_dataset == "en":
-    name_of_dataset = "dwug_en"
-else:
-    name_of_dataset = "dwug_es"
+name_of_dataset = "dwug_en" if language_dataset == "en" else "dwug_es"
 
 
 def make_examples(df: pd.DataFrame):
     return [
-        dspy.Example(
-            sentence1=row["context_x"],
-            sentence2=row["context_y"],
-            target_word=row["lemma"],
-            answer=int(row["judgment"]),
-        ).with_inputs("sentence1", "sentence2", "target_word")
-        for _, row in df.iterrows()
+        (
+            dspy.Example(
+                sentence1=row["context_x"],
+                sentence2=row["context_y"],
+                target_word=row["lemma"],
+                answer=int(row["judgment"]),
+            ).with_inputs("sentence1", "sentence2", "target_word"),
+            idx,
+        )
+        for idx, row in df.iterrows()
     ]
 
 
@@ -94,57 +92,71 @@ def sample_class_balanced(examples, k):
         return random.choices(examples, k=k)
 
 
-def dev_class_balanced(examples, k):
-    if len(examples) >= k:
-        return examples[:k]
-    else:
-        return examples + random.choices(examples, k=k - len(examples))
-
-
 train_data = pd.read_csv(name_train_dataset)
 dev_data = pd.read_csv(name_dev_dataset)
 
 print(train_data.shape)
 print(dev_data.shape)
 
-training_set = make_examples(train_data)
-dev_set = make_examples(dev_data)
+training_set_with_idx = make_examples(train_data)
+dev_set_with_idx = make_examples(dev_data)
 
 
-classes_train = {i: [ex for ex in training_set if ex.answer == i] for i in [1, 2, 3, 4]}
-classes_dev = {i: [ex for ex in dev_set if ex.answer == i] for i in [1, 2, 3, 4]}
+classes_train = {
+    i: [(ex, idx) for ex, idx in training_set_with_idx if ex.answer == i]
+    for i in [1, 2, 3, 4]
+}
+classes_dev = {
+    i: [(ex, idx) for ex, idx in dev_set_with_idx if ex.answer == i]
+    for i in [1, 2, 3, 4]
+}
 
 print("Train sizes: ", {k: len(v) for k, v in classes_train.items()})
 print("Dev sizes: ", {k: len(v) for k, v in classes_dev.items()})
 
-dev_subset = classes_dev[1] + classes_dev[2] + classes_dev[3] + classes_dev[4]
+dev_subset_pairs = classes_dev[1] + classes_dev[2] + classes_dev[3] + classes_dev[4]
+dev_subset, dev_indices = zip(*dev_subset_pairs)
 
-
-train_subset = (
+train_subset_pairs = (
     sample_class_balanced(classes_train[1], number_items_per_class)
     + sample_class_balanced(classes_train[2], number_items_per_class)
     + sample_class_balanced(classes_train[3], number_items_per_class)
     + sample_class_balanced(classes_train[4], number_items_per_class)
 )
+train_subset, train_indices = zip(*train_subset_pairs)
 
-custom_evaluate(
+train_results = custom_evaluate(
     train_subset,
     program_spt_prompt_with_assertions,
     f"non-optimized (train) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_per_class}",
     f"accuracy-report-train-nonopt-items-{number_items_per_class}.txt",
     number_items_per_class,
+    report_result=True,
     debug=False,
 )
+save_results(
+    train_data.loc[list(train_indices)],
+    train_results,
+    train_subset,
+    f"train_nonopt_results_{name_of_dataset}_prompt-{prompt_idiom}_items-{number_items_per_class}",
+)
 
-
-custom_evaluate(
+dev_results = custom_evaluate(
     dev_subset,
     program_spt_prompt_with_assertions,
-    f"non-optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_dev_set}",
-    f"accuracy-report-dev-nonopt-items-{number_items_dev_set}.txt",
+    f"non-optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items_train-{number_items_per_class} - items_dev-{number_items_dev_set}",
+    f"accuracy-report-dev-nonopt-items_train-{number_items_per_class}_dev-{number_items_dev_set}.txt",
     number_items_dev_set,
+    report_result=True,
     debug=False,
 )
+save_results(
+    dev_data.loc[list(dev_indices)],
+    dev_results,
+    dev_subset,
+    f"dev_nonopt_results_{name_of_dataset}_prompt-{prompt_idiom}_train-{number_items_per_class}_dev-{number_items_dev_set}",
+)
+
 
 teleprompter = MIPROv2(
     metric=evaluate_answer,
@@ -176,22 +188,37 @@ program_spt_prompt_with_assertions.load(
     f"compile-models/sp/{language_dataset}_spt_mipro_optimized_prompt_{prompt_idiom}_deepseek-70b-q4-{number_items_per_class}-items-per-class"
 )
 
-custom_evaluate(
+train_results_opt = custom_evaluate(
     train_subset,
     program_spt_prompt_with_assertions,
     f"optimized (train) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_per_class}",
     f"accuracy-report-train-opt-items-{number_items_per_class}.txt",
     number_items_per_class,
+    report_result=True,
     debug=False,
+)
+save_results(
+    train_data.loc[list(train_indices)],
+    train_results_opt,
+    train_subset,
+    f"train_opt_results_{name_of_dataset}_prompt-{prompt_idiom}_items-{number_items_per_class}",
 )
 
-custom_evaluate(
+dev_results_opt = custom_evaluate(
     dev_subset,
     program_spt_prompt_with_assertions,
-    f"optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items-{number_items_dev_set}",
-    f"accuracy-report-dev-opt-items-{number_items_dev_set}.txt",
+    f"optimized (dev) - {name_of_dataset} - prompt-{prompt_idiom} - items_train-{number_items_per_class} items_dev-{number_items_dev_set}",
+    f"accuracy-report-dev-opt-items_train-{number_items_per_class}_dev-{number_items_dev_set}.txt",
     number_items_dev_set,
+    report_result=True,
     debug=False,
 )
+save_results(
+    dev_data.loc[list(dev_indices)],
+    dev_results_opt,
+    dev_subset,
+    f"dev_opt_results_{name_of_dataset}_prompt-{prompt_idiom}_train-{number_items_per_class}_dev-{number_items_dev_set}",
+)
+
 
 print(f"ELAPSED TIME: {datetime.now() - start_time}")

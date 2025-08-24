@@ -3,6 +3,7 @@ from typing import List, Any
 
 import dspy
 from scipy.stats import spearmanr
+import pandas as pd
 
 
 def custom_evaluate(
@@ -139,3 +140,24 @@ def custom_evaluate_for_spr_lscd(
 
     if report_result is True:
         return result
+
+
+def save_results(data: pd.DataFrame, result, set_of_examples, name_file: str):
+    reasoning = [item.reasoning if item else None for item in result]
+    pred = [item.answer if item else None for item in result]
+
+    annotated_data = pd.DataFrame()
+
+    annotated_data["sentence1"] = data["context_x"].tolist()
+    annotated_data["sentence2"] = data["context_y"].tolist()
+    annotated_data["gold_label"] = [item.answer for item in set_of_examples]
+    annotated_data["prediction"] = pred
+    annotated_data["reasoning"] = reasoning
+    annotated_data["grouping1"] = data["grouping_x"].tolist()
+    annotated_data["grouping2"] = data["grouping_y"].tolist()
+    annotated_data["identifier1"] = data["identifier1"].tolist()
+    annotated_data["identifier2"] = data["identifier2"].tolist()
+    annotated_data["word"] = data["lemma"].tolist()
+    annotated_data["judgment"] = data["judgment"].tolist()
+
+    annotated_data.to_csv(f"{name_file}.csv", index=False)
